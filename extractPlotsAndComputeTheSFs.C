@@ -50,7 +50,7 @@ TH1F *convertGraphInHisto_1D(TGraphAsymmErrors *theGraph){
         xerr[j] = theGraph->GetErrorXlow(j);
         yerr[j] = max(theGraph->GetErrorYlow(j), theGraph->GetErrorYhigh(j));
         if ((theGraph->GetErrorYlow(j) > (3 * theGraph->GetErrorYhigh(j))) || (theGraph->GetErrorYhigh(j) > (3 * theGraph->GetErrorYlow(j)))){
-            if (min(theGraph->GetErrorYlow(j), theGraph->GetErrorYhigh(j))>0.01){
+            if (max(theGraph->GetErrorYlow(j), theGraph->GetErrorYhigh(j))>0.01){
                 cout << "WARNING !!!!, found a patological error in " << grName << " please check" << endl;
                 yerr[j] = min(theGraph->GetErrorYlow(j), theGraph->GetErrorYhigh(j));
             }
@@ -179,7 +179,7 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                                 if (lowError>highError) histo2D->SetBinError(xaxisBin+1,  oneDhistos+1, lowError);
                                 else histo2D->SetBinError(xaxisBin+1,  oneDhistos+1, highError);
                                 if ((lowError>(3*highError))||(highError>(3*lowError))) {
-                                    if (min(lowError,highError)>0.01){ //of course of eff=1, the errors will be very assymetrics
+                                    if (max(lowError,highError)>0.01){ //of course of eff=1, the errors will be very assymetrics
                                         cout << "WARNING !!!!, found a patological error in data efficiencies " << name1D << " please check" << endl;
                                         histo2D->SetBinError(xaxisBin+1,  oneDhistos+1, min(lowError, highError));
                                     }
@@ -206,7 +206,7 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                                 if (lowError>highError) histo2DMC->SetBinError(xaxisBin+1,  oneDhistos+1, lowError);
                                 else histo2DMC->SetBinError(xaxisBin+1,  oneDhistos+1, highError);
                                 if ((lowError>(3*highError))||(highError>(3*lowError))) {
-                                    if (min(lowError,highError)>0.01){ //of course of eff=1, the errors will be very assymetrics
+                                    if (max(lowError,highError)>0.01){ //of course of eff=1, the errors will be very assymetrics
                                         cout << "WARNING !!!!, found a patological error in MC efficiencies " << name1Dmc << " please check" << endl;
                                         histo2DMC->SetBinError(xaxisBin+1,  oneDhistos+1, min(lowError, highError));
                                     }
