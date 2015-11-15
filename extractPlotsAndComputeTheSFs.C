@@ -117,8 +117,9 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                     }
                 }
                 myOutFile->cd();
-                theGraphDATA->SetName(nomContent+"_DATA");
-                theGraphDATA->Write(nomContent+"_DATA");
+                TString smaller1Dname = makeNameSmaller(nomContent);
+                theGraphDATA->SetName(smaller1Dname+"_DATA");
+                theGraphDATA->Write(smaller1Dname+"_DATA");
                 cout << "now getting the corresponding histo in MC" << endl;
                 TCanvas *theCanvasMC = (TCanvas*) efficienciesMC->Get("tpTree/"+nomDirectory+"/fit_eff_plots/"+nomContent);
                 TIter nextObjectMC(theCanvasMC->GetListOfPrimitives());
@@ -131,8 +132,8 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                     }
                 }
                 myOutFile->cd();
-                theGraphMC->SetName(nomContent+"_MC");
-                theGraphMC->Write(nomContent+"_MC");
+                theGraphMC->SetName(smaller1Dname+"_MC");
+                theGraphMC->Write(smaller1Dname+"_MC");
                 // now will compute the SF !
                 TH1F *the1Dhisto = computeTheSF_1D(theGraphDATA, theGraphMC);
                 myOutFile->cd();
