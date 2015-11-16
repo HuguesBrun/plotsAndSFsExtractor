@@ -91,6 +91,8 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
         if (typeDirectory== "TDirectoryFile"){
             cout << "getting the efficiencies in " << nomDirectory << endl;
             TFile *myOutFile = new TFile("EfficienciesAndSF_"+nomDirectory+".root","RECREATE");
+            TDirectory *dataPlots = myOutFile->mkdir("efficienciesDATA");
+            TDirectory *mcPlots = myOutFile->mkdir("efficienciesMC");
             TDirectory *plotFinalDirectory = efficienciesDATA->GetDirectory("tpTree/"+nomDirectory+"/fit_eff_plots");
             TIter binsEffienciesDATA(plotFinalDirectory->GetListOfKeys());
             TKey *keyEffDATA;
@@ -116,10 +118,12 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                         break;
                     }
                 }
-                myOutFile->cd();
+                dataPlots->cd();
                 TString smaller1Dname = makeNameSmaller(nomContent);
                 theGraphDATA->SetName(smaller1Dname+"_DATA");
                 theGraphDATA->Write(smaller1Dname+"_DATA");
+                TH1F *theHistoDATA = convertGraphInHisto_1D(theGraphDATA);
+                theHistoDATA->Write("histo_"+smaller1Dname+"_DATA");
                 cout << "now getting the corresponding histo in MC" << endl;
                 TCanvas *theCanvasMC = (TCanvas*) efficienciesMC->Get("tpTree/"+nomDirectory+"/fit_eff_plots/"+nomContent);
                 TIter nextObjectMC(theCanvasMC->GetListOfPrimitives());
@@ -131,9 +135,11 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                         break;
                     }
                 }
-                myOutFile->cd();
+                mcPlots->cd();
                 theGraphMC->SetName(smaller1Dname+"_MC");
                 theGraphMC->Write(smaller1Dname+"_MC");
+                TH1F *theHistoMC = convertGraphInHisto_1D(theGraphMC);
+                theHistoMC->Write("histo_"+smaller1Dname+"_MC");
                 // now will compute the SF !
                 TH1F *the1Dhisto = computeTheSF_1D(theGraphDATA, theGraphMC);
                 myOutFile->cd();
@@ -170,6 +176,8 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                                     break;
                                 }
                             }
+                            dataPlots->cd();
+                            the1DAssymGraph->Write(name1D+"_DATA");
                             for (int xaxisBin = 0  ; xaxisBin < nbXBins ; xaxisBin++){
                                 double x,y, lowError, highError;
                                 the1DAssymGraph->GetPoint(xaxisBin,x,y);
@@ -197,6 +205,8 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                                     break;
                                 }
                             }
+                            mcPlots->cd();
+                            the1DAssymGraphMC->Write(name1Dmc+"_MC");
                             for (int xaxisBin = 0  ; xaxisBin < nbXBins ; xaxisBin++){
                                 double x,y, lowError, highError;
                                 the1DAssymGraphMC->GetPoint(xaxisBin,x,y);
@@ -215,9 +225,12 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                         }
                         myOutFile->cd();
                         TString shortNamePlot = makeNameSmaller(nomContent);
+                        dataPlots->cd();
                         histo2D->Write(shortNamePlot+"_DATA");
+                        mcPlots->cd();
                         histo2DMC->Write(shortNamePlot+"_MC");
-                        TH2F *histo2Dratio = (TH2F*) histo2D->Clone(nomContent+"_ratio");
+                        myOutFile->cd();
+                        TH2F *histo2Dratio = (TH2F*) histo2D->Clone(shortNamePlot+"_ratio");
                         histo2Dratio->Sumw2();
                         histo2Dratio->Divide(histo2D,histo2DMC,1,1);
                         histo2Dratio->Write();
