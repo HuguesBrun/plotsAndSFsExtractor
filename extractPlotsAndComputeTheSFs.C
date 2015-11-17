@@ -22,9 +22,20 @@ float min(float a, float b){
 
 float findPathologocialErrors(TString binName, float centralValue, float highSideError, float lowSideError){
     if ((lowSideError > (3 * highSideError)) || (highSideError > (3 * lowSideError))){
-        if (max(lowSideError, highSideError)>0.01){
-            cout << "WARNING !!!!, found a patological error in " << binName << " please check" << endl;
-            return min(lowSideError, highSideError);
+        if (centralValue<0.99){
+            if (lowSideError > (3 * highSideError)){
+                if (highSideError < 0.333*(1-centralValue)){ //trigger the correction only if the error is small enough
+                    cout << "WARNING !!!!, found a patological error in " << binName << " please check" << endl;
+                    return min(lowSideError, highSideError);
+                }
+            }
+            else {
+                cout << "WARNING !!!!, found a patological error in " << binName << " please check" << endl;
+                return min(lowSideError, highSideError);
+            }
+        }
+        else {
+            cout << "WARNING !!!!! very assymetrical errors but close to one, no correction triggered, please check plot " << binName << endl;
         }
     }
     return -1;
