@@ -79,7 +79,7 @@ TH1F *computeTheSF_1D(TGraphAsymmErrors *graphDATA, TGraphAsymmErrors *graphMC){
     return ratio;
 }
 
-void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
+void extractPlotsAndComputeTheSFs(TString theIDname, TString dataFile, TString mcFile){
     efficienciesDATA = new TFile(dataFile);
     efficienciesMC = new TFile(mcFile);
     TDirectory *plotDirectory = efficienciesDATA->GetDirectory("tpTree");
@@ -91,8 +91,9 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
         if (typeDirectory== "TDirectoryFile"){
             cout << "getting the efficiencies in " << nomDirectory << endl;
             TFile *myOutFile = new TFile("EfficienciesAndSF_"+nomDirectory+".root","RECREATE");
-            TDirectory *dataPlots = myOutFile->mkdir("efficienciesDATA");
-            TDirectory *mcPlots = myOutFile->mkdir("efficienciesMC");
+            TDirectory *theMainDirectory = myOutFile->mkdir(theIDname);
+            TDirectory *dataPlots = theMainDirectory->mkdir("efficienciesDATA");
+            TDirectory *mcPlots = theMainDirectory->mkdir("efficienciesMC");
             TDirectory *plotFinalDirectory = efficienciesDATA->GetDirectory("tpTree/"+nomDirectory+"/fit_eff_plots");
             TIter binsEffienciesDATA(plotFinalDirectory->GetListOfKeys());
             TKey *keyEffDATA;
@@ -142,7 +143,7 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                 theHistoMC->Write("histo_"+smaller1Dname+"_MC");
                 // now will compute the SF !
                 TH1F *the1Dhisto = computeTheSF_1D(theGraphDATA, theGraphMC);
-                myOutFile->cd();
+                theMainDirectory->cd();
                 the1Dhisto->Write();
                 
             }
@@ -223,13 +224,13 @@ void extractPlotsAndComputeTheSFs(TString dataFile, TString mcFile){
                                 }
                             }
                         }
-                        myOutFile->cd();
+                        theMainDirectory->cd();
                         TString shortNamePlot = makeNameSmaller(nomContent);
                         dataPlots->cd();
                         histo2D->Write(shortNamePlot+"_DATA");
                         mcPlots->cd();
                         histo2DMC->Write(shortNamePlot+"_MC");
-                        myOutFile->cd();
+                        theMainDirectory->cd();
                         TH2F *histo2Dratio = (TH2F*) histo2D->Clone(shortNamePlot+"_ratio");
                         histo2Dratio->Sumw2();
                         histo2Dratio->Divide(histo2D,histo2DMC,1,1);
