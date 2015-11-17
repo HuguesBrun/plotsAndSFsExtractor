@@ -19,6 +19,18 @@ float min(float a, float b){
     else return a;
 }
 
+
+float findPathologocialErrors(TString binName, float centralValue, float highSideError, float lowSideError){
+    if ((lowSideError > (3 * highSideError)) || (highSideError > (3 * lowSideError))){
+        if (max(lowSideError, highSideError)>0.01){
+            cout << "WARNING !!!!, found a patological error in " << binName << " please check" << endl;
+            return min(lowSideError, highSideError);
+        }
+    }
+    return -1;
+}
+
+
 TString makeNameSmaller(TString theInputName){
     TObjArray* Strings = theInputName.Tokenize("PLOT");
     TString nomSF = ((TObjString *)(Strings->At(0)))->String();
@@ -49,12 +61,8 @@ TH1F *convertGraphInHisto_1D(TGraphAsymmErrors *theGraph){
     for (Int_t j=0;j<Npnts;j++){
         xerr[j] = theGraph->GetErrorXlow(j);
         yerr[j] = max(theGraph->GetErrorYlow(j), theGraph->GetErrorYhigh(j));
-        if ((theGraph->GetErrorYlow(j) > (3 * theGraph->GetErrorYhigh(j))) || (theGraph->GetErrorYhigh(j) > (3 * theGraph->GetErrorYlow(j)))){
-            if (max(theGraph->GetErrorYlow(j), theGraph->GetErrorYhigh(j))>0.01){
-                cout << "WARNING !!!!, found a patological error in " << grName << " please check" << endl;
-                yerr[j] = min(theGraph->GetErrorYlow(j), theGraph->GetErrorYhigh(j));
-            }
-        }
+        float foundPathoError = findPathologocialErrors(grName, y[j], theGraph->GetErrorYhigh(j), theGraph->GetErrorYlow(j));
+        if (foundPathoError>1) yerr[j] = foundPathoError;
         xbinlimits[j]=x[j]-xerr[j];
     }
     xbinlimits[Npnts]=x[Npnts-1]+theGraph->GetErrorXhigh(Npnts-1);
@@ -187,12 +195,8 @@ void extractPlotsAndComputeTheSFs(TString theIDname, TString dataFile, TString m
                                 histo2D->SetBinContent(xaxisBin+1,  oneDhistos+1, y);
                                 if (lowError>highError) histo2D->SetBinError(xaxisBin+1,  oneDhistos+1, lowError);
                                 else histo2D->SetBinError(xaxisBin+1,  oneDhistos+1, highError);
-                                if ((lowError>(3*highError))||(highError>(3*lowError))) {
-                                    if (max(lowError,highError)>0.01){ //of course of eff=1, the errors will be very assymetrics
-                                        cout << "WARNING !!!!, found a patological error in data efficiencies " << name1D << " please check" << endl;
-                                        histo2D->SetBinError(xaxisBin+1,  oneDhistos+1, min(lowError, highError));
-                                    }
-                                }
+                                float foundPathoError = findPathologocialErrors(name1D, y, highError, lowError);
+                                if (foundPathoError>1) histo2D->SetBinError(xaxisBin+1,  oneDhistos+1, foundPathoError);
                             }
                             nextKey1Dmc =(TKey*)binsEffienciesMC();
                             TString name1Dmc = nextKey1Dmc->GetName();
@@ -216,12 +220,8 @@ void extractPlotsAndComputeTheSFs(TString theIDname, TString dataFile, TString m
                                 histo2DMC->SetBinContent(xaxisBin+1,  oneDhistos+1, y);
                                 if (lowError>highError) histo2DMC->SetBinError(xaxisBin+1,  oneDhistos+1, lowError);
                                 else histo2DMC->SetBinError(xaxisBin+1,  oneDhistos+1, highError);
-                                if ((lowError>(3*highError))||(highError>(3*lowError))) {
-                                    if (max(lowError,highError)>0.01){ //of course of eff=1, the errors will be very assymetrics
-                                        cout << "WARNING !!!!, found a patological error in MC efficiencies " << name1Dmc << " please check" << endl;
-                                        histo2DMC->SetBinError(xaxisBin+1,  oneDhistos+1, min(lowError, highError));
-                                    }
-                                }
+                                float foundPathoError = findPathologocialErrors(name1D, y, highError, lowError);
+                                if (foundPathoError>1) histo2DMC->SetBinError(xaxisBin+1,  oneDhistos+1, foundPathoError);
                             }
                         }
                         theMainDirectory->cd();
