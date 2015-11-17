@@ -91,7 +91,7 @@ TH1F *computeTheSF_1D(TGraphAsymmErrors *graphDATA, TGraphAsymmErrors *graphMC){
     TH1F *histoDATA = convertGraphInHisto_1D(graphDATA);
     TH1F *histoMC   = convertGraphInHisto_1D(graphMC);
     TString nomHistogram = graphDATA->GetName();
-    nomHistogram.ReplaceAll("_DATA","_RATIO");
+    nomHistogram.ReplaceAll("_DATA","_ratio");
     TH1F *ratio = (TH1F*) histoDATA->Clone(nomHistogram);
     ratio->Sumw2();
     ratio->Divide(histoDATA, histoMC, 1, 1);
@@ -144,6 +144,7 @@ void extractPlotsAndComputeTheSFs(TString theIDname, TString dataFile, TString m
                 theGraphDATA->Write(smaller1Dname+"_DATA");
                 TH1F *theHistoDATA = convertGraphInHisto_1D(theGraphDATA);
                 theHistoDATA->Write("histo_"+smaller1Dname+"_DATA");
+                delete theHistoDATA;
                 cout << "now getting the corresponding histo in MC" << endl;
                 TCanvas *theCanvasMC = (TCanvas*) efficienciesMC->Get("tpTree/"+nomDirectory+"/fit_eff_plots/"+nomContent);
                 TIter nextObjectMC(theCanvasMC->GetListOfPrimitives());
@@ -160,6 +161,7 @@ void extractPlotsAndComputeTheSFs(TString theIDname, TString dataFile, TString m
                 theGraphMC->Write(smaller1Dname+"_MC");
                 TH1F *theHistoMC = convertGraphInHisto_1D(theGraphMC);
                 theHistoMC->Write("histo_"+smaller1Dname+"_MC");
+                delete theHistoMC;
                 // now will compute the SF !
                 TH1F *the1Dhisto = computeTheSF_1D(theGraphDATA, theGraphMC);
                 theMainDirectory->cd();
