@@ -20,5 +20,3 @@
    * `createJsonFile.py EfficienciesAndSF.root theJSONfile.json`
 
 
-# write the SF in a JSON file 
-`createJsonFile.py theInputFile.root theOutputJsonFileName.json`
