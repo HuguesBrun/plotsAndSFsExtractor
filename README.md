@@ -1,6 +1,7 @@
 # How it works ? 
 ## SF extractor:
-   * ` root -b -q -l 'extractPlotsAndComputeTheSFs.C("IDname_BINSname","pathToDataTnPOutputFile","pathToDataTnPOutputFile")' `
+   * ` root -b -q -l 'extractPlotsAndComputeTheSFs.C("IDname_BINSname","pathToDataTnPOutputFile","pathToMCTnPOutputFile")' `
+
 ## JSON + Pkl dumper:
    * `createJsonFile.py theInputFile.root theOutputJsonFileName.json`
 
